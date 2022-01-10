@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using GoPassDummy.Database;
 using GoPassDummy.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,37 +10,41 @@ namespace GoPassDummy.Repositories
 {
     public class MySqlMariaDbUsersRepository : IUsersRepository
     {
-        private const string databaseName = "GoPassDummy";
         private readonly MariaDbContext dbContext;
 
-        public MySqlMariaDbUsersRepository(MariaDbContext dbContext)
+        public MySqlMariaDbUsersRepository(IMariaDbContext dbContext)
         {
-            this.dbContext = dbContext; 
+            this.dbContext = (MariaDbContext)dbContext; 
         }
 
-        public Task CreateUserAsync(User item)
+        public async Task CreateUserAsync(User user)
         {
-            throw new System.NotImplementedException();
+            await dbContext.Users.AddAsync(user);
+            await dbContext.SaveChangesAsync();
         }
 
-        public Task DeleteUserAsync(User id)
+        public async Task DeleteUserAsync(Guid id)
         {
-            throw new System.NotImplementedException();
+            var entity = await dbContext.Users.FirstOrDefaultAsync(user => user.Id == id);
+            dbContext.Users.Remove(entity);
+            await dbContext.SaveChangesAsync();
         }
 
-        public Task<User> GetUserAsync(User id)
+        public async Task<User> GetUserAsync(Guid id)
         {
-            throw new System.NotImplementedException();
+            return await dbContext.Users.FirstOrDefaultAsync(user => user.Id == id);
         }
 
-        public Task<IEnumerable<User>> GetUsersAsync()
+        public async Task<IEnumerable<User>> GetUsersAsync()
         {
-            throw new System.NotImplementedException();
+            return await dbContext.Users.ToListAsync();
         }
 
-        public Task UpdateUserAsync(User item)
+        public async Task UpdateUserAsync(User user)
         {
-            throw new System.NotImplementedException();
+            var entity = await dbContext.Users.FirstOrDefaultAsync(user => user.Id == user.Id);
+            dbContext.Entry(entity).CurrentValues.SetValues(user);
+            await dbContext.SaveChangesAsync();
         }
     }
 }
