@@ -6,6 +6,7 @@ using GoPassDummy.Repositories;
 using GoPassDummy.Dtos;
 using GoPassDummy.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 
 namespace GoPassDummy.Controllers
 {
@@ -44,17 +45,7 @@ namespace GoPassDummy.Controllers
         [HttpPost]
         public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto userDto)
         {
-            User user = new()
-            {
-                Id = Guid.NewGuid(),
-                Name = userDto.Name,
-                Surname = userDto.Surname,
-                Email = userDto.Email,
-                MobilePhone = userDto.MobilePhone,
-                CreatedDate = DateTimeOffset.UtcNow
-            };
-
-            await repository.CreateUserAsync(user);
+            var user = await CreateSingleUser(userDto);
 
             return CreatedAtAction(nameof(GetUserAsync), new {id = user.Id}, user.AsDto());
         }
@@ -94,6 +85,23 @@ namespace GoPassDummy.Controllers
             await repository.DeleteUserAsync(id);
 
             return NoContent();
+        }
+
+        private async Task<User> CreateSingleUser(CreateUserDto userDto)
+        {
+            User user = new()
+            {
+                Id = Guid.NewGuid(),
+                Name = userDto.Name,
+                Surname = userDto.Surname,
+                Email = userDto.Email,
+                MobilePhone = userDto.MobilePhone,
+                CreatedDate = DateTimeOffset.UtcNow
+            };
+
+            await repository.CreateUserAsync(user);
+
+            return user;
         }
     }
 }
