@@ -1,5 +1,10 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using GoPassDummy.Dtos;
 using GoPassDummy.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace GoPassDummy
 {
@@ -16,6 +21,17 @@ namespace GoPassDummy
                 MobilePhone = user.MobilePhone,
                 CreatedDate = user.CreatedDate
             };
+        }
+
+        public static async Task<List<string>> ReadAsStringAsync(this IFormFile file)
+        {
+            var result = new List<string>();
+            using (var reader = new StreamReader(file.OpenReadStream()))
+            {
+                while (reader.Peek() >= 0)
+                    result.Add(await reader.ReadLineAsync()); 
+            }
+            return result;
         }
     }
 }
