@@ -87,6 +87,41 @@ namespace GoPassDummy.Controllers
             return NoContent();
         }
 
+        [HttpPost("upload")]
+        public async Task<IActionResult> OnPostUploadAsync(IFormFile formFile)
+        {
+            if(formFile.ContentType != "text/plain")
+            {
+                return BadRequest("Invalid file format.");
+            }
+            if (formFile.Length <= 0)
+            {
+                return BadRequest("File is empty.");
+            }
+            
+            var usersCreadted = new List<User>();
+            List<string> fileLines = await formFile.ReadAsStringAsync();
+
+            foreach(var line in fileLines)
+            {
+                var elems = line.Split(';');
+                if(elems.Length !=  4) break;
+
+                CreateUserDto userDto = new() 
+                {
+                    Name = elems[0],
+                    Surname = elems[1],
+                    Email = elems[2],
+                    MobilePhone = elems[3],
+                };
+                var user = await CreateSingleUser(userDto);
+
+                usersCreadted.Add(user);
+            }
+            
+            return CreatedAtAction(nameof(OnPostUploadAsync), usersCreadted.Select(user => user.AsDto()));
+        }
+
         private async Task<User> CreateSingleUser(CreateUserDto userDto)
         {
             User user = new()
