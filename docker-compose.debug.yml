@@ -1,0 +1,26 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP .NET Core service.
+
+version: '3.4'
+
+services:
+  db:
+    image: mariadb:latest
+    environment:
+      MARIADB_USER: "goadmin"
+      MARIADB_PASSWORD: "jasnaresort"
+      MARIADB_ROOT_PASSWORD: "jasnaresort"
+  web:
+    image: gopassdummy
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 5000:5000
+      - 5001:5001
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ~/.vsdbg:c:\remote_debugger:rw
+    depends_on:
+      - db
+
