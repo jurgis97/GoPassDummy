@@ -7,6 +7,7 @@ using GoPassDummy.Dtos;
 using GoPassDummy.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
 namespace GoPassDummy.Controllers
 {
@@ -105,7 +106,7 @@ namespace GoPassDummy.Controllers
             foreach(var line in fileLines)
             {
                 var elems = line.Split(';');
-                if(elems.Length !=  4) break;
+                if(elems.Length !=  4) continue;
 
                 CreateUserDto userDto = new() 
                 {
@@ -114,6 +115,12 @@ namespace GoPassDummy.Controllers
                     Email = elems[2],
                     MobilePhone = elems[3],
                 };
+
+                if( !Validator.TryValidateObject(userDto, new ValidationContext(userDto), null, true) )
+                {
+                    continue;
+                }
+
                 var user = await CreateSingleUser(userDto);
 
                 usersCreadted.Add(user);
